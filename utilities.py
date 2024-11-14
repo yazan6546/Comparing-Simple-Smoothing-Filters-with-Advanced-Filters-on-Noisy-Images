@@ -6,7 +6,7 @@ def create_dataframe_image(original_image):
 
 
   gaussian_std = [5, 25, 75]
-  salt_pepper_probs  = [0.05, 0.25, 0.5]
+  salt_pepper_probs  = [0.05, 0.10, 0.25]
 
   # Create lists for DataFrame
   index = []
