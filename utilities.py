@@ -1,11 +1,10 @@
 import image_processing as ip
 import pandas as pd
 import os
+import numpy as np
 import shutil
 import cv2
 import matplotlib.pyplot as plt
-from sklearn.metrics import mean_squared_error
-
 
 def create_dataframe_image(original_image):
   # Define noise parameters
@@ -55,7 +54,7 @@ def kernel_size_from_name(file_name):
     return kernel_size
 
 # Function to create directory structure and save images
-def save_filtered_images(df, image_name, kernel_sizes=[3, 5, 7]):
+def save_filtered_images(df, image_name, kernel_sizes=[3, 5, 7], gaussian_std=0):
 
     # Define the base directory
     base_dir = 'Images_filtered'
@@ -84,7 +83,7 @@ def save_filtered_images(df, image_name, kernel_sizes=[3, 5, 7]):
                     elif filter_type == 'median_filter':
                         filtered_image = cv2.medianBlur(noisy_image, k)
                     elif filter_type == 'gaussian_filter':
-                        filtered_image = cv2.GaussianBlur(noisy_image, (k, k), 0)
+                        filtered_image = cv2.GaussianBlur(noisy_image, (k, k), gaussian_std)
 
 
                     if (filtered_image.shape != noisy_image.shape):
@@ -102,9 +101,18 @@ def save_filtered_images(df, image_name, kernel_sizes=[3, 5, 7]):
 #     save_filtered_images(image_path, image_name)
 
 
+def calculate_psnr(original_image, filtered_image):
 
-def get_mse_values_for_filter_and_noise(base_dir, original_image_name, original_image, noise_level, noise_type, filter_types):
-    mse_values = {filter_type: [] for filter_type in filter_types}
+    mse = np.mean((original_image - filtered_image) ** 2)
+    if mse == 0:
+        return float('inf')
+    max_pixel = 255.0
+    psnr = 20 * np.log10(max_pixel / np.sqrt(mse))
+    return psnr
+
+
+def get_metric_values_for_filter_and_noise(metric, base_dir, original_image_name, original_image, noise_level, noise_type, filter_types):
+    metric_values = {filter_type: [] for filter_type in filter_types}
     kernels = []
 
     for filter_type in filter_types:
@@ -130,75 +138,77 @@ def get_mse_values_for_filter_and_noise(base_dir, original_image_name, original_
                 filtered_image = cv2.imread(file_path, cv2.IMREAD_GRAYSCALE)
                         
                 # Calculate MSE
-                mse = mean_squared_error(original_image.flatten(), filtered_image.flatten())
+                metric_value = metric(original_image.flatten(), filtered_image.flatten())
 
                 if kernel_size not in kernels:   
                     kernels.append(kernel_size)
 
-                mse_values[filter_type].append(mse)
+                metric_values[filter_type].append(metric_value)
 
 
-    return mse_values, kernels
+    return metric_values, kernels
 
 
 
-def collect_mse_values_for_all_filters_and_noise_types(base_dir, original_image_name, original_image):
+def collect_metric_values_for_all_filters_and_noise_types(metric, base_dir, original_image_name, original_image):
 
     noise_levels = os.listdir(os.path.join(base_dir, original_image_name))
     noise_types = os.listdir(os.path.join(base_dir, original_image_name, noise_levels[0]))
     filter_types = os.listdir(os.path.join(base_dir, original_image_name, noise_levels[0], noise_types[0]))
 
-    mse_dict_outer = {}
+    metric_dict_outer = {}
 
     for noise_type in noise_types:
-        mse_dict_inner = {}
+        metric_dict_inner = {}
         for noise_level in noise_levels:
-            mse_values, kernels = get_mse_values_for_filter_and_noise(base_dir, original_image_name, original_image, noise_level, noise_type, filter_types)
-            mse_dict_inner[noise_level] = mse_values
-        mse_dict_outer[noise_type] = mse_dict_inner
+            metric_values, kernels = get_metric_values_for_filter_and_noise(metric, base_dir, original_image_name, original_image, noise_level, noise_type, filter_types)
+            metric_dict_inner[noise_level] = metric_values
+        metric_dict_outer[noise_type] = metric_dict_inner
 
-    return mse_dict_outer, kernels
-
-
+    return metric_dict_outer, kernels
 
 
-def plot_mse_vs_kernel(mse_dict_outer, noise_levels, filter_types, kernel_sizes):
-    num_noise_types = len(mse_dict_outer)
+
+
+def plot_metric_vs_kernel(metric_dict_outer, ylabel, noise_levels, filter_types, kernel_sizes):
+    num_noise_types = len(metric_dict_outer)
     num_noise_levels = len(noise_levels)
     
     fig, axes = plt.subplots(num_noise_types, num_noise_levels, figsize=(15, 5 * num_noise_types), sharey=True)
     
-    for i, (noise_type, mse_dict_inner) in enumerate(mse_dict_outer.items()):
+    for i, (noise_type, metric_dict_inner) in enumerate(metric_dict_outer.items()):
         for j, noise_level in enumerate(noise_levels):
             ax = axes[i, j] if num_noise_types > 1 else axes[j]
             for filter_type in filter_types:
-                if noise_level in mse_dict_inner and filter_type in mse_dict_inner[noise_level]:
-                    mse_values = mse_dict_inner[noise_level][filter_type]
-                    ax.plot(kernel_sizes, mse_values, label=filter_type)
+                if noise_level in metric_dict_inner and filter_type in metric_dict_inner[noise_level]:
+                    metric_values = metric_dict_inner[noise_level][filter_type]
+                    ax.plot(kernel_sizes, metric_values, label=filter_type)
             
             ax.set_title(f'{noise_type} - {noise_level}')
             ax.set_xlabel('Kernel Size')
             if j == 0:
-                ax.set_ylabel('Mean Squared Error (MSE)')
+                ax.set_ylabel(ylabel)
             ax.legend()
             ax.grid(True)
+
+    fig.suptitle('Mean Square Error (MSE) vs Kernel Size for Image 1', fontsize=16)
     
     plt.tight_layout()
     plt.show()
 
-# Example usage
-base_dir = 'Images_filtered'
-original_image_name = 'image_0'
-original_image= cv2.imread('images/image_0.png', cv2.IMREAD_GRAYSCALE)
-filter_types = ['box_filter', 'median_filter', 'gaussian_filter']
+# # Example usage
+# base_dir = 'Images_filtered'
+# original_image_name = 'image_0'
+# original_image= cv2.imread('images/image_0.png', cv2.IMREAD_GRAYSCALE)
+# filter_types = ['box_filter', 'median_filter', 'gaussian_filter']
 
-mse_dict_outer, kernels = collect_mse_values_for_all_filters_and_noise_types(base_dir, original_image_name, original_image)
-# print(mse_dict_outer)
+# mse_dict_outer, kernels = collect_mse_values_for_all_filters_and_noise_types(base_dir, original_image_name, original_image)
+# # print(mse_dict_outer)
 
-noise_levels = ['low', 'medium', 'high']
+# noise_levels = ['low', 'medium', 'high']
 
-print(f'ker = {kernels}')
+# print(f'ker = {kernels}')
 
-print(mse_dict_outer['Gaussian']['low']['box_filter'])
+# print(mse_dict_outer['Gaussian']['low']['box_filter'])
 
-plot_mse_vs_kernel(mse_dict_outer, noise_levels, filter_types, kernels)
+# plot_mse_vs_kernel(mse_dict_outer, noise_levels, filter_types, kernels)
