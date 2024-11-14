@@ -45,6 +45,15 @@ def create_or_replace_dir(dir_path):
         shutil.rmtree(dir_path)
     os.makedirs(dir_path)
 
+def kernel_size_from_name(file_name):
+
+    # Extract kernel size from the filename
+    name_without_extension = os.path.splitext(file_name)[0]
+    parts = name_without_extension.split('_')[-1]
+    kernel_size = int(parts[1])
+
+    return kernel_size
+
 # Function to create directory structure and save images
 def save_filtered_images(df, image_name, kernel_sizes=[3, 5, 7]):
 
@@ -102,17 +111,17 @@ def get_mse_values_for_filter_and_noise(base_dir, original_image_name, original_
         dir_path = os.path.join(base_dir, original_image_name, noise_level, noise_type, filter_type)
         if not os.path.exists(dir_path):
             continue
+        
+        # Sort the files based on the kernel size
+        files = os.listdir(dir_path)
+        sorted_files = sorted(files, key=kernel_size_from_name)
                 
-        for file_name in os.listdir(dir_path):
+        for file_name in sorted_files:
 
             if file_name.endswith('.png'):
 
                 # Extract kernel size from the filename
-                name_without_extension = os.path.splitext(file_name)[0]
-                parts = name_without_extension.split('_')[-1]
-                kernel_size = int(parts[1])
-
-                kernels.append(kernel_size)
+                kernel_size = kernel_size_from_name(file_name)
                         
                 # Construct the file path
                 file_path = os.path.join(dir_path, file_name)
@@ -122,10 +131,12 @@ def get_mse_values_for_filter_and_noise(base_dir, original_image_name, original_
                         
                 # Calculate MSE
                 mse = mean_squared_error(original_image.flatten(), filtered_image.flatten())
-                        
-                
-                kernels.append(kernel_size)
+
+                if kernel_size not in kernels:   
+                    kernels.append(kernel_size)
+
                 mse_values[filter_type].append(mse)
+
 
                    
 
