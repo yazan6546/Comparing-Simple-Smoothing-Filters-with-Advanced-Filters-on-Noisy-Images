@@ -50,7 +50,7 @@ def kernel_size_from_name(file_name):
     # Extract kernel size from the filename
     name_without_extension = os.path.splitext(file_name)[0]
     parts = name_without_extension.split('_')[-1]
-    kernel_size = int(parts[1])
+    kernel_size = int(parts[1:])
 
     return kernel_size
 
@@ -138,8 +138,6 @@ def get_mse_values_for_filter_and_noise(base_dir, original_image_name, original_
                 mse_values[filter_type].append(mse)
 
 
-                   
-
     return mse_values, kernels
 
 
@@ -199,8 +197,8 @@ mse_dict_outer, kernels = collect_mse_values_for_all_filters_and_noise_types(bas
 
 noise_levels = ['low', 'medium', 'high']
 
-print(kernels)
+print(f'ker = {kernels}')
 
 print(mse_dict_outer['Gaussian']['low']['box_filter'])
 
-# plot_mse_vs_kernel(mse_dict_outer, noise_levels, filter_types, kernels)
+plot_mse_vs_kernel(mse_dict_outer, noise_levels, filter_types, kernels)
