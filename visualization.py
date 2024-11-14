@@ -1,36 +1,33 @@
-
-
 import matplotlib.pyplot as plt
 import cv2
 
-def display_images_noises(original_image, gaussian_noise, salt_pepper_noise, intensity):
-
-  # Assuming you have the original image and noisy images
-  images = [original_image, gaussian_noise, salt_pepper_noise]
-  titles = ["Original", "Gaussian Noise " + intensity, "Salt-and-Pepper Noise " + intensity]
-
-  # Create a figure with subplots
-  fig, axes = plt.subplots(1, 4, figsize=(20, 5))  # 1 row, 4 columns
-
-  # Loop through the images and titles
-  for ax, img, title in zip(axes, images, titles):
-      ax.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))  # Convert BGR to RGB for displaying
-      ax.set_title(title)
-      ax.axis('off')  # Turn off axes for better presentation
-
-  plt.tight_layout()
-  plt.show()
 
 
-def to_numpy(tensor):
+def plot_metric_vs_kernel(metric_dict_outer, ylabel, noise_levels, filter_types, kernel_sizes, number):
+    num_noise_types = len(metric_dict_outer)
+    num_noise_levels = len(noise_levels)
+    
+    fig, axes = plt.subplots(num_noise_types, num_noise_levels, figsize=(15, 5 * num_noise_types), sharey=True)
+    
+    for i, (noise_type, metric_dict_inner) in enumerate(metric_dict_outer.items()):
+        for j, noise_level in enumerate(noise_levels):
+            ax = axes[i, j] if num_noise_types > 1 else axes[j]
+            for filter_type in filter_types:
+                if noise_level in metric_dict_inner and filter_type in metric_dict_inner[noise_level]:
+                    metric_values = metric_dict_inner[noise_level][filter_type]
+                    ax.plot(kernel_sizes, metric_values, label=filter_type)
+            
+            ax.set_title(f'{noise_type} - {noise_level}')
+            ax.set_xlabel('Kernel Size')
+            if j == 0:
+                ax.set_ylabel(ylabel)
+            ax.legend()
+            ax.grid(True)
 
-  # Convert _TakeDataset to list of tensors
-  dataset_list = list(tensor)
+    fig.suptitle(f'{ylabel} vs Kernel Size for Image {number}', fontsize=18)
+    plt.tight_layout(rect=[0, 0, 1, 0.90])  # Adjust layout to make room for the suptitle
+    fig.subplots_adjust(top=0.85)  # Fine-tune the spacing below the title
 
-  # Convert list of tensors to list of NumPy arrays
-  numpy_list = [item.numpy() for item in dataset_list]
-
-  # Convert list of NumPy arrays to a single NumPy array
-  numpy_array = np.array(numpy_list)
-
-  return numpy_array
+    
+    plt.tight_layout()
+    plt.show()
