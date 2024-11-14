@@ -76,6 +76,10 @@ def save_filtered_images(df, image_name, kernel_sizes=[3, 5, 7]):
                         filtered_image = cv2.medianBlur(noisy_image, k)
                     elif filter_type == 'gaussian_filter':
                         filtered_image = cv2.GaussianBlur(noisy_image, (k, k), 0)
+
+
+                    if (filtered_image.shape != noisy_image.shape):
+                        raise ValueError(f"Filtered image shape {filtered_image.shape} does not match noisy image shape {noisy_image.shape}")
                     
                     # Save the filtered image
                     file_name = f"{image_name}_{noise_type}_{noise_level}_{filter_type}_k{k}.png"
@@ -174,12 +178,18 @@ def plot_mse_vs_kernel(mse_dict_outer, noise_levels, filter_types, kernel_sizes)
     plt.show()
 
 # Example usage
-original_image = cv2.imread('Images/image_0.png',cv2.IMREAD_GRAYSCALE)
 base_dir = 'Images_filtered'
 original_image_name = 'image_0'
+original_image= cv2.imread('images/image_0.png', cv2.IMREAD_GRAYSCALE)
 filter_types = ['box_filter', 'median_filter', 'gaussian_filter']
 
 mse_dict_outer, kernels = collect_mse_values_for_all_filters_and_noise_types(base_dir, original_image_name, original_image)
+# print(mse_dict_outer)
+
 noise_levels = ['low', 'medium', 'high']
 
-plot_mse_vs_kernel(mse_dict_outer, noise_levels, filter_types)
+print(kernels)
+
+print(mse_dict_outer['Gaussian']['low']['box_filter'])
+
+# plot_mse_vs_kernel(mse_dict_outer, noise_levels, filter_types, kernels)
