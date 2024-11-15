@@ -44,3 +44,18 @@ def plot_images(list_of_images, titles):
         axes[i].set_title(titles[i])
         axes[i].axis('off')
     plt.show()
+
+
+def plot_time_vs_kernel(times):
+    # Unstack the DataFrame to have 'Kernel Size' as the index and 'Filter Type' as columns
+    df_unstacked = times['Time'].unstack(level=0)
+    
+    # Plot using pandas' plot method
+    ax = df_unstacked.plot(kind='line', figsize=(10, 6), marker='o')
+    
+    ax.set_xlabel('Kernel Size')
+    ax.set_ylabel('Time (seconds)')
+    ax.set_title('Time vs Kernel Size for Different Filters')
+    ax.grid(True)
+    
+    plt.show()
