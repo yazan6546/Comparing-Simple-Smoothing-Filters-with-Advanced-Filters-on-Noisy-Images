@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import cv2
+import math
 
 
 
@@ -30,4 +31,16 @@ def plot_metric_vs_kernel(metric_dict_outer, ylabel, noise_levels, filter_types,
 
     
     plt.tight_layout()
+    plt.show()
+
+
+
+def plot_images(list_of_images, titles):
+    
+    # Display the image in the notebook
+    fig, axes = plt.subplots(math.ceil(len(list_of_images)/3), 3, figsize=(15, 5))
+    for i, img in enumerate(list_of_images):
+        axes[i].imshow(img, cmap='gray')
+        axes[i].set_title(titles[i])
+        axes[i].axis('off')
     plt.show()

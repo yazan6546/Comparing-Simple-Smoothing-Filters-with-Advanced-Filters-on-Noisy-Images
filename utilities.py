@@ -2,7 +2,6 @@ import noise
 import pandas as pd
 import os
 import shutil
-import matplotlib.pyplot as plt
 
 
 def create_dataframe_image(original_image):

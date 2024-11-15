@@ -1,6 +1,6 @@
 import cv2
 import os
-
+import numpy as np
 
 # Function to create directory structure and save images
 def save_filtered_images(df, image_name, kernel_sizes=[3, 5, 7], gaussian_std=0):
@@ -11,7 +11,7 @@ def save_filtered_images(df, image_name, kernel_sizes=[3, 5, 7], gaussian_std=0)
     # Define noise levels, noise types, and filters
     noise_levels = ['low', 'medium', 'high']
     noise_types = ['Gaussian', 'Salt and Pepper']
-    filters = ['box_filter', 'median_filter', 'gaussian_filter']
+    filters = ['box_filter', 'median_filter', 'gaussian_filter', 'adaptive_median_filter', 'bilateral_filter']
     
     for noise_level in noise_levels:
         for noise_type in noise_types:
@@ -33,6 +33,10 @@ def save_filtered_images(df, image_name, kernel_sizes=[3, 5, 7], gaussian_std=0)
                         filtered_image = cv2.medianBlur(noisy_image, k)
                     elif filter_type == 'gaussian_filter':
                         filtered_image = cv2.GaussianBlur(noisy_image, (k, k), gaussian_std)
+                    elif filter_type == 'adaptive_median_filter':
+                        filtered_image = adaptive_median_filter(noisy_image, max_kernel_size=k)
+                    elif filter_type == 'bilateral_filter':
+                        filtered_image = cv2.bilateralFilter(noisy_image, k, 75, 75)
 
 
                     if (filtered_image.shape != noisy_image.shape):
@@ -42,15 +46,28 @@ def save_filtered_images(df, image_name, kernel_sizes=[3, 5, 7], gaussian_std=0)
                     file_name = f"{image_name}_{noise_type}_{noise_level}_{filter_type}_k{k}.png"
                     file_path = os.path.join(dir_path, file_name)
                     cv2.imwrite(file_path, filtered_image)
-                    
 
 
-def adaptive_median_filter(image, max_kernel_size=7):
-    # Initialize output image
-    output_image = np.zeros_like(image)
-    padded_image = np.pad(image, max_kernel_size // 2, mode='reflect')
-    
-    # Process each pixel in the image
+def adaptive_median_filter(image, max_kernel_size=3):
+    """
+    Apply adaptive median filter to the input image.
+
+    Parameters:
+    - image: Input grayscale image (2D numpy array).
+    - max_kernel_size: Maximum size of the kernel (must be an odd number).
+
+    Returns:
+    - output_image: Filtered image.
+    """
+    # Ensure the max_kernel_size is odd
+    if max_kernel_size % 2 == 0:
+        raise ValueError("max_kernel_size must be an odd number")
+
+    # Pad the image to handle borders
+    pad_size = max_kernel_size // 2
+    padded_image = np.pad(image, pad_size, mode='constant', constant_values=0)
+    output_image = np.copy(image)
+
     for i in range(image.shape[0]):
         for j in range(image.shape[1]):
             kernel_size = 3  # Start with the smallest kernel size
@@ -78,5 +95,6 @@ def adaptive_median_filter(image, max_kernel_size=7):
             
             # Store the filtered pixel value
             output_image[i, j] = pixel_filtered
-    
+
     return output_image
+
