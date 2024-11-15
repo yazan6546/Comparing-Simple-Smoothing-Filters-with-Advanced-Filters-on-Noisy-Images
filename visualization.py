@@ -55,3 +55,29 @@ def plot_time_vs_kernel(times):
     ax.grid(True)
     
     plt.show()
+
+
+
+def visualize_edges(original_image, edges_image):
+    """
+    Visualize the original image and the edges detected by the Canny edge detector.
+
+    Parameters:
+    - original_image: The original grayscale image.
+    - edges_image: The image with edges detected by the Canny edge detector.
+    """
+    plt.figure(figsize=(10, 5))
+
+    # Display the original image
+    plt.subplot(1, 2, 1)
+    plt.imshow(original_image, cmap='gray')
+    plt.title('Original Image')
+    plt.axis('off')
+
+    # Display the edges image
+    plt.subplot(1, 2, 2)
+    plt.imshow(edges_image, cmap='gray')
+    plt.title('Edges Image')
+    plt.axis('off')
+
+    plt.show()
