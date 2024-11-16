@@ -46,9 +46,7 @@ def create_or_replace_dir(dir_path):
 
 def kernel_size_from_name(file_name):
 
-    # Extract kernel size from the filename
-    name_without_extension = os.path.splitext(file_name)[0]
-    parts = name_without_extension.split('_')[-1]
-    kernel_size = int(parts[1:])
-
-    return kernel_size
+  # Extract kernel size from the filename
+  name_without_extension = os.path.splitext(file_name)[0]
+  parts = name_without_extension.split('_')[-1]
+  return int(parts[1:])
