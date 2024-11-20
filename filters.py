@@ -6,11 +6,10 @@ import numpy as np
 BASE_DIR = 'Images_filtered'
 
 # define the filter mapping to prevent if else statements
-
 FILTER_MAPPING = {
     'box_filter': lambda img, k: cv2.blur(img, (k, k)),
     'median_filter': lambda img, k: cv2.medianBlur(img, k),
-    'gaussian_filter': lambda img, k: cv2.GaussianBlur(img, (k, k), k * 3),
+    'gaussian_filter': lambda img, k: cv2.GaussianBlur(img, (k, k)),
     'adaptive_median_filter': lambda img, k: adaptive_median_filter(img, max_kernel_size=k),
     'bilateral_filter': lambda img, k: cv2.bilateralFilter(img, k, 75, 75),
     'adaptive_mean_filter': lambda img, k: adaptive_mean_filter(img, k, np.var(img))

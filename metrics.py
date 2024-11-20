@@ -70,24 +70,10 @@ def collect_metric_values_for_all_filters_and_noise_types(metric, base_dir, orig
     return metric_dict_outer, kernels
 
 
-def measure_filter_time(image, filter_type, kernel_size, gaussian_std=0):
+def measure_filter_time(image, filter_type, kernel_size):
     start_time = time.time()
-    
-    if filter_type == 'box_filter':
-        filtered_image = cv2.blur(image, (kernel_size, kernel_size))
-    elif filter_type == 'median_filter':
-        filtered_image = cv2.medianBlur(image, kernel_size)
-    elif filter_type == 'gaussian_filter':
-        filtered_image = cv2.GaussianBlur(image, (kernel_size, kernel_size), gaussian_std)
-    elif filter_type == 'adaptive_median_filter':
-        filtered_image = filters.adaptive_median_filter(image, max_kernel_size=kernel_size)
-    elif filter_type == 'bilateral_filter':
-        filtered_image = cv2.bilateralFilter(image, d=kernel_size, sigmaColor=75, sigmaSpace=75)
-    elif filter_type == 'adaptive_mean_filter':
-        global_variance = np.var(image)
-        filtered_image = filters.adaptive_mean_filter(image, kernel_size, global_variance)
-    else:
-        raise ValueError("Unsupported filter type")
+
+    filters.FILTER_MAPPING[filter_type](image, kernel_size)
 
     end_time = time.time()
     elapsed_time = end_time - start_time
