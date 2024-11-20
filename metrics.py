@@ -8,7 +8,7 @@ import filters
 
 def calculate_psnr(original_image, filtered_image):
 
-    mse = np.mean((original_image - filtered_image) ** 2)
+    mse = np.mean((original_image.astype(float) - filtered_image.astype(float)) ** 2)
     return float('inf') if mse == 0 else 20 * np.log10(255.0 / np.sqrt(mse))
 
 
