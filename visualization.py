@@ -3,6 +3,18 @@ import math
 
 
 def plot_metric_vs_kernel(metric_dict_outer, ylabel, noise_levels, filter_types, kernel_sizes, number):
+    """
+    Plot the metric values against the kernel sizes for different noise levels and types.
+
+    Parameters:
+    - metric_dict_outer: Dictionary containing the metric values for different noise types.
+    - ylabel: Label for the y-axis.
+    - noise_levels: List of noise levels.
+    - filter_types: List of filter types.
+    - kernel_sizes: List of kernel sizes.
+    - number: Image number.
+    """
+
     num_noise_types = len(metric_dict_outer)
     num_noise_levels = len(noise_levels)
     
@@ -34,6 +46,13 @@ def plot_metric_vs_kernel(metric_dict_outer, ylabel, noise_levels, filter_types,
 
 
 def plot_images(list_of_images, titles):
+    """
+    Plot a list of images with their corresponding titles.
+
+    Parameters:
+    - list_of_images: List of images to be displayed.
+    - titles: List of titles for the images.
+    """
     
     # Display the image in the notebook
     fig, axes = plt.subplots(math.ceil(len(list_of_images)/3), 3, figsize=(15, 5))
@@ -87,4 +106,32 @@ def visualize_edges(original_image, edges_image):
 
 
 
-def plot_original_noisy_images()
+def plot_original_noisy_images(dataframes, noise_types, intensity):
+    """
+    Plot the original image and the noisy variants side by side.
+
+    Parameters:
+    - dataframes: List of DataFrames containing the noisy images.
+    - noise_types: List of noise types.
+    """
+    
+# Iterate over all images
+    for i, df in enumerate(dataframes):
+
+        image = df.loc['no_noise', 'Image']
+
+        _, axes = plt.subplots(1, 3, figsize=(15, 5))
+    
+        # Display the original image
+        axes[0].imshow(image, cmap='gray')
+        axes[0].set_title('Original')
+        axes[0].axis('off')
+    
+        # Display the noisy variants
+        for j, noise_type in enumerate(noise_types):
+            noisy_image = dataframes[i].loc['noisy_image ({intensity})', 'Image']
+            axes[j + 1].imshow(noisy_image, cmap='gray')
+            axes[j + 1].set_title('noisy_image ({intensity})')
+            axes[j + 1].axis('off')
+    
+        plt.show()
