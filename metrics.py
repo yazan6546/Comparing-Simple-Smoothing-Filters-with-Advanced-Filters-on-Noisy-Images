@@ -82,6 +82,9 @@ def measure_filter_time(image, filter_type, kernel_size, gaussian_std=0):
         filtered_image = filters.adaptive_median_filter(image, max_kernel_size=kernel_size)
     elif filter_type == 'bilateral_filter':
         filtered_image = cv2.bilateralFilter(image, d=kernel_size, sigmaColor=75, sigmaSpace=75)
+    elif filter_type == 'adaptive_mean_filter':
+        global_variance = np.var(image)
+        filtered_image = filters.adaptive_mean_filter(image, kernel_size, global_variance)
     else:
         raise ValueError("Unsupported filter type")
 

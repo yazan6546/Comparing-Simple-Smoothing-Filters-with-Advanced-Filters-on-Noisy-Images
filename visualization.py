@@ -48,6 +48,7 @@ def plot_time_vs_kernel(times):
     
     # Plot using pandas' plot method
     ax = df_unstacked.plot(kind='line', figsize=(10, 6), marker='o')
+    ax.set_yscale('log')
     
     ax.set_xlabel('Kernel Size')
     ax.set_ylabel('Time (seconds)')

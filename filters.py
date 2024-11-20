@@ -11,7 +11,13 @@ def save_filtered_images(df, image_name, kernel_sizes=[3, 5, 7], gaussian_std=0)
     # Define noise levels, noise types, and filters
     noise_levels = ['low', 'medium', 'high']
     noise_types = ['Gaussian', 'Salt and Pepper']
-    filters = ['box_filter', 'median_filter', 'gaussian_filter', 'adaptive_median_filter', 'bilateral_filter']
+    
+    filters = ['box_filter',
+               'median_filter',
+               'gaussian_filter',
+               'adaptive_median_filter',
+               'bilateral_filter',
+               'adaptive_mean_filter']
     
     for noise_level in noise_levels:
         for noise_type in noise_types:
@@ -32,11 +38,14 @@ def save_filtered_images(df, image_name, kernel_sizes=[3, 5, 7], gaussian_std=0)
                     elif filter_type == 'median_filter':
                         filtered_image = cv2.medianBlur(noisy_image, k)
                     elif filter_type == 'gaussian_filter':
-                        filtered_image = cv2.GaussianBlur(noisy_image, (k, k), gaussian_std)
+                        filtered_image = cv2.GaussianBlur(noisy_image, (k, k), k * 3)
                     elif filter_type == 'adaptive_median_filter':
                         filtered_image = adaptive_median_filter(noisy_image, max_kernel_size=k)
                     elif filter_type == 'bilateral_filter':
                         filtered_image = cv2.bilateralFilter(noisy_image, k, 75, 75)
+                    elif filter_type == 'adaptive_mean_filter':
+                        global_variance = np.var(noisy_image)
+                        filtered_image = adaptive_mean_filter(noisy_image, k, global_variance)
 
 
                     if (filtered_image.shape != noisy_image.shape):
@@ -98,3 +107,36 @@ def adaptive_median_filter(image, max_kernel_size=3):
 
     return output_image
 
+
+
+
+def adaptive_mean_filter(image, kernel_size, global_variance):
+    """
+    Apply adaptive mean filter to the input image.
+
+    Parameters:
+    - image: Input grayscale image (2D numpy array).
+    - kernel_size: Size of the kernel.
+    - global_variance: Global variance of the image.
+
+    Returns:
+    - output_image: Filtered image.
+    """
+
+    pad_size = kernel_size // 2
+    padded_image = np.pad(image, pad_size, mode='constant', constant_values=0)
+    output_image = np.copy(image)
+
+    for i in range(image.shape[0]):
+        for j in range(image.shape[1]):
+            
+            local_region = padded_image[i:i + kernel_size, j:j + kernel_size]
+            local_mean = np.mean(local_region)
+            local_variance = np.var(local_region)
+
+            ratio = global_variance / local_variance if local_variance > global_variance else 1
+
+            filtered_value = image[i, j] - ratio * (image[i, j] - local_mean)
+            output_image[i, j] = filtered_value
+
+    return output_image
