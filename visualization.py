@@ -38,9 +38,10 @@ def plot_metric_vs_kernel(metric_dict_outer, ylabel, noise_levels, filter_types,
     fig.suptitle(f'{ylabel} vs Kernel Size for Image {number}', fontsize=18)
     plt.tight_layout(rect=[0, 0, 1, 0.90])  # Adjust layout to make room for the suptitle
     fig.subplots_adjust(top=0.85)  # Fine-tune the spacing below the title
-
+    # Hide any unused subplots
+    for j in range(i + 1, len(axes)):
+        axes[j].axis('off')
     
-    plt.tight_layout()
     plt.show()
 
 
@@ -106,32 +107,37 @@ def visualize_edges(original_image, edges_image):
 
 
 
-def plot_original_noisy_images(dataframes, noise_types, intensity):
+
+def plot_original_noisy_images(df, noise_types, intesities, type):
     """
     Plot the original image and the noisy variants side by side.
-
     Parameters:
     - dataframes: List of DataFrames containing the noisy images.
     - noise_types: List of noise types.
     """
     
-# Iterate over all images
-    for i, df in enumerate(dataframes):
+    image = df.loc['no_noise', 'Image']
+    fig, axes = plt.subplots(3, 3, figsize=(30, 20))
 
-        image = df.loc['no_noise', 'Image']
-
-        _, axes = plt.subplots(1, 3, figsize=(15, 5))
-    
-        # Display the original image
-        axes[0].imshow(image, cmap='gray')
-        axes[0].set_title('Original')
-        axes[0].axis('off')
-    
+    # Iterate over all images
+    for i, intensity, in enumerate(intesities):
+        
+         # Display the original image
+        axes[i, 0].imshow(image, cmap='gray')
+        axes[i, 0].set_title('Original', fontsize=23)
+        axes[i, 0].axis('off')
+        
         # Display the noisy variants
-        for j, noise_type in enumerate(noise_types):
-            noisy_image = dataframes[i].loc['noisy_image ({intensity})', 'Image']
-            axes[j + 1].imshow(noisy_image, cmap='gray')
-            axes[j + 1].set_title('{noise_type} ({intensity})')
-            axes[j + 1].axis('off')
-    
-        plt.show()
+        for j, noise in enumerate(noise_types):
+            
+            noisy_image_key = f'{noise} ({intensity})'
+
+            noisy_image = df.loc[noisy_image_key, 'Image']
+            axes[i, j + 1].imshow(noisy_image, cmap='gray')
+            axes[i, j + 1].set_title(noisy_image_key, fontsize=23)
+            axes[i, j + 1].axis('off')
+        
+    fig.suptitle(f'Different noises on {type} detailed image' , fontsize=35)
+    plt.tight_layout(rect=[0, 0, 1, 0.94])  # Adjust layout to make room for the suptitle
+    plt.subplots_adjust(hspace=0.1)  # Increase the height space between rows
+    plt.show()
