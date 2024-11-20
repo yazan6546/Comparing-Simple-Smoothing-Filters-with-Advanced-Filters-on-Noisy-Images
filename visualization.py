@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
 import math
+
+
 def plot_metric_vs_kernel(metric_dict_outer, ylabel, noise_levels, filter_types, kernel_sizes, number):
     num_noise_types = len(metric_dict_outer)
     num_noise_levels = len(noise_levels)
@@ -82,3 +84,7 @@ def visualize_edges(original_image, edges_image):
     plt.axis('off')
 
     plt.show()
+
+
+
+def plot_original_noisy_images()

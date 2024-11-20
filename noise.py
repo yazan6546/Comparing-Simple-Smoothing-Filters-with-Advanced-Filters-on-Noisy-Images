@@ -1,5 +1,4 @@
 import numpy as np
-import cv2
 
 def add_gaussian_noise(image, mean=0, sigma=25):
     gauss = np.random.normal(mean, sigma, image.shape)
