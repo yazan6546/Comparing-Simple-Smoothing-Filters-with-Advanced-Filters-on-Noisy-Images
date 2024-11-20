@@ -9,7 +9,8 @@ import filters
 def calculate_psnr(original_image, filtered_image):
 
     mse = np.mean((original_image.astype(float) - filtered_image.astype(float)) ** 2)
-    return float('inf') if mse == 0 else 20 * np.log10(255.0 / np.sqrt(mse))
+    epsilon = 1e-10  # Small threshold to prevent numerical instability
+    return float('inf') if mse < epsilon else 20 * np.log10(255.0 / np.sqrt(mse))
 
 
 def get_metric_values_for_filter_and_noise(metric, base_dir, original_image_name, original_image, noise_level, noise_type, filter_types):
