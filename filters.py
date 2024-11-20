@@ -2,22 +2,28 @@ import cv2
 import os
 import numpy as np
 
+# Define the base directory
+BASE_DIR = 'Images_filtered'
+
+# define the filter mapping to prevent if else statements
+
+FILTER_MAPPING = {
+    'box_filter': lambda img, k: cv2.blur(img, (k, k)),
+    'median_filter': lambda img, k: cv2.medianBlur(img, k),
+    'gaussian_filter': lambda img, k: cv2.GaussianBlur(img, (k, k), k * 3),
+    'adaptive_median_filter': lambda img, k: adaptive_median_filter(img, max_kernel_size=k),
+    'bilateral_filter': lambda img, k: cv2.bilateralFilter(img, k, 75, 75),
+    'adaptive_mean_filter': lambda img, k: adaptive_mean_filter(img, k, np.var(img))
+}
+
 # Function to create directory structure and save images
 def save_filtered_images(df, image_name, kernel_sizes=[3, 5, 7], gaussian_std=0):
 
-    # Define the base directory
-    base_dir = 'Images_filtered'
 
     # Define noise levels, noise types, and filters
     noise_levels = ['low', 'medium', 'high']
     noise_types = ['Gaussian', 'Salt and Pepper']
     
-    filters = ['box_filter',
-               'median_filter',
-               'gaussian_filter',
-               'adaptive_median_filter',
-               'bilateral_filter',
-               'adaptive_mean_filter']
     
     for noise_level in noise_levels:
         for noise_type in noise_types:
@@ -26,26 +32,14 @@ def save_filtered_images(df, image_name, kernel_sizes=[3, 5, 7], gaussian_std=0)
 
             noisy_image = df.loc[key, 'Image']
 
-            for filter_type in filters:
+            for filter_type in FILTER_MAPPING.keys():
                 for k in kernel_sizes:
                     # Create the directory path
-                    dir_path = os.path.join(base_dir, image_name, noise_level, noise_type, filter_type)
+                    dir_path = os.path.join(BASE_DIR, image_name, noise_level, noise_type, filter_type)
                     os.makedirs(dir_path, exist_ok=True)
                     
-                    # Apply the filter (example with GaussianBlur)
-                    if filter_type == 'box_filter':
-                        filtered_image = cv2.blur(noisy_image, (k, k))
-                    elif filter_type == 'median_filter':
-                        filtered_image = cv2.medianBlur(noisy_image, k)
-                    elif filter_type == 'gaussian_filter':
-                        filtered_image = cv2.GaussianBlur(noisy_image, (k, k), k * 3)
-                    elif filter_type == 'adaptive_median_filter':
-                        filtered_image = adaptive_median_filter(noisy_image, max_kernel_size=k)
-                    elif filter_type == 'bilateral_filter':
-                        filtered_image = cv2.bilateralFilter(noisy_image, k, 75, 75)
-                    elif filter_type == 'adaptive_mean_filter':
-                        global_variance = np.var(noisy_image)
-                        filtered_image = adaptive_mean_filter(noisy_image, k, global_variance)
+                    # Apply the filter
+                    filtered_image = FILTER_MAPPING[filter_type](noisy_image, k)
 
 
                     if (filtered_image.shape != noisy_image.shape):
