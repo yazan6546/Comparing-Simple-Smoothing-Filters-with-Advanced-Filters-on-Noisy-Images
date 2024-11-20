@@ -131,7 +131,7 @@ def plot_original_noisy_images(dataframes, noise_types, intensity):
         for j, noise_type in enumerate(noise_types):
             noisy_image = dataframes[i].loc['noisy_image ({intensity})', 'Image']
             axes[j + 1].imshow(noisy_image, cmap='gray')
-            axes[j + 1].set_title('noisy_image ({intensity})')
+            axes[j + 1].set_title('{noise_type} ({intensity})')
             axes[j + 1].axis('off')
     
         plt.show()
