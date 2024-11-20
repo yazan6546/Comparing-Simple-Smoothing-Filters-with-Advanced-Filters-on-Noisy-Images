@@ -134,7 +134,7 @@ def adaptive_mean_filter(image, kernel_size, global_variance):
             local_mean = np.mean(local_region)
             local_variance = np.var(local_region)
 
-            ratio = global_variance / local_variance if local_variance > global_variance else 1
+            ratio = global_variance / (local_variance + 1e-10) if local_variance > global_variance else 1
 
             filtered_value = image[i, j] - ratio * (image[i, j] - local_mean)
             output_image[i, j] = filtered_value
