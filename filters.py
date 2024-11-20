@@ -9,7 +9,7 @@ BASE_DIR = 'Images_filtered'
 FILTER_MAPPING = {
     'box_filter': lambda img, k: cv2.blur(img, (k, k)),
     'median_filter': lambda img, k: cv2.medianBlur(img, k),
-    'gaussian_filter': lambda img, k: cv2.GaussianBlur(img, (k, k)),
+    'gaussian_filter': lambda img, k, gaussian_std: cv2.GaussianBlur(img, (k, k), gaussian_std),
     'adaptive_median_filter': lambda img, k: adaptive_median_filter(img, max_kernel_size=k),
     'bilateral_filter': lambda img, k: cv2.bilateralFilter(img, k, 75, 75),
     'adaptive_mean_filter': lambda img, k: adaptive_mean_filter(img, k, np.var(img))
@@ -38,7 +38,14 @@ def save_filtered_images(df, image_name, kernel_sizes=[3, 5, 7], gaussian_std=0)
                     os.makedirs(dir_path, exist_ok=True)
                     
                     # Apply the filter
-                    filtered_image = FILTER_MAPPING[filter_type](noisy_image, k)
+                    if filter_type in FILTER_MAPPING:
+
+                        if filter_type == 'gaussian_filter':  # Special case for Gaussian filter
+                            filtered_image = FILTER_MAPPING[filter_type](noisy_image, k, gaussian_std)
+                        else:
+                            filtered_image = FILTER_MAPPING[filter_type](noisy_image, k)
+                    else:
+                        raise ValueError("Unsupported filter type")
 
 
                     if (filtered_image.shape != noisy_image.shape):

@@ -70,10 +70,16 @@ def collect_metric_values_for_all_filters_and_noise_types(metric, base_dir, orig
     return metric_dict_outer, kernels
 
 
-def measure_filter_time(image, filter_type, kernel_size):
+def measure_filter_time(image, filter_type, kernel_size, gaussian_std=0):
     start_time = time.time()
 
-    filters.FILTER_MAPPING[filter_type](image, kernel_size)
+    if filter_type in filters.FILTER_MAPPING:
+        if filter_type == 'gaussian_filter':  # Special case for Gaussian filter
+            filtered_image = filters.FILTER_MAPPING[filter_type](image, kernel_size, gaussian_std)
+        else:
+            filtered_image = filters.FILTER_MAPPING[filter_type](image, kernel_size)
+    else:
+        raise ValueError("Unsupported filter type")
 
     end_time = time.time()
     elapsed_time = end_time - start_time
