@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 import math
 import utilities as utils
 import cv2
@@ -214,4 +215,85 @@ def plot_original_noisy_filtered_images(df, noise_type, noise_intensity, filter_
     plt.subplots_adjust(hspace=0.1)  # Increase the height space between rows
     plt.show()    
 
+
+def plot_detailed_comparison(df, noise_type, noise_intensity, filter_types, kernel_sizes, original_image_name):
+    """
+    Plot the original image, edge detection, noisy edge detection, and filtered images with different kernel sizes.
+
+    Parameters:
+    - df: DataFrame containing the images.
+    - noise_type: Type of noise.
+    - noise_intensity: Intensity of noise.
+    - filter_types: List of filter types.
+    - kernel_sizes: List of kernel sizes.
+    - original_image_name: Name of the original image.
+    """
+    fontsize_subtitle=26
+
+    # Get the original image, noisy image, and edge detection images
+    image = df.loc['no_noise', 'Image']
+    noisy_image = df.loc[f'{noise_type} Noise ({noise_intensity})', 'Image']
+    edges_image = cv2.Canny(image, 100, 200)
+    noisy_edges_image = cv2.Canny(noisy_image, 100, 200)
     
+    # Create a new figure with a custom grid layout
+    fig = plt.figure(figsize=(20, 20))
+    gs = gridspec.GridSpec(4, 4, height_ratios=[1, 1, 1, 1], width_ratios=[1, 1, 1, 1])
+    
+    # Set the face color of the figure to white
+    fig.patch.set_facecolor('white')
+    
+    # Display original image in the first row
+    ax1 = fig.add_subplot(gs[0, 0])
+    ax1.imshow(image, cmap='gray')
+    ax1.set_title('Original Image', fontsize=fontsize_subtitle)
+    ax1.axis('off')
+
+    # Display edge detection in the first row
+    ax2 = fig.add_subplot(gs[0, 1])
+    ax2.imshow(edges_image, cmap='gray')
+    ax2.set_title('Edge Detection', fontsize=fontsize_subtitle)
+    ax2.axis('off')
+
+    # Display noisy image in the first row
+    ax3 = fig.add_subplot(gs[0, 2])
+    ax3.imshow(noisy_image, cmap='gray')
+    ax3.set_title(f'Noisy Image ({noise_type} {noise_intensity})', fontsize=fontsize_subtitle)
+    ax3.axis('off')
+
+    # Display noisy edge detection in the first row
+    ax4 = fig.add_subplot(gs[0, 3])
+    ax4.imshow(noisy_edges_image, cmap='gray')
+    ax4.set_title('Noisy Edge Detection', fontsize=fontsize_subtitle)
+    ax4.axis('off')
+    
+    # Display filtered images in the second, third, and fourth rows
+    for i, filter_type in enumerate(filter_types):
+        for j, kernel_size in enumerate(kernel_sizes):
+            row = (i % 3) + 1
+            col = j
+            ax = fig.add_subplot(gs[row, col])
+            image_path = utils.get_path_filtered(original_image_name, noise_intensity, noise_type, filter_type, kernel_size, create_dir=False)
+            filtered_image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+            ax.imshow(filtered_image, cmap='gray')
+            ax.set_title(f'{filter_type.replace("_", " ").title()} (k={kernel_size})', fontsize=fontsize_subtitle)
+            ax.axis('off')
+    
+    # Hide any unused subplots
+    for row in range(4):
+        for col in range(4):
+            if row == 0 and col < 4:
+                continue
+            if row > 0 and row * 4 + col >= len(filter_types) * len(kernel_sizes):
+                ax = fig.add_subplot(gs[row, col])
+                ax.axis('off')
+    
+    # Set the suptitle with a larger font size
+    fig.suptitle(f'Original, Edge Detection, Noisy, and Filtered Images for {original_image_name}', fontsize=35)
+    
+    # Adjust layout and increase spacing between rows
+    plt.tight_layout(rect=[0, 0, 1, 0.94])
+    plt.subplots_adjust(hspace=0.1)  # Increase the vertical space between rows
+    
+    # Show the figure
+    plt.show()
