@@ -1,9 +1,6 @@
 import cv2
-import os
+import utilities as util
 import numpy as np
-
-# Define the base directory
-BASE_DIR = 'Images_filtered'
 
 # define the filter mapping to prevent if else statements
 FILTER_MAPPING = {
@@ -32,10 +29,7 @@ def save_filtered_images(df, image_name, kernel_sizes=[3, 5, 7], gaussian_std=0)
             noisy_image = df.loc[key, 'Image']
 
             for filter_type in FILTER_MAPPING.keys():
-                for k in kernel_sizes:
-                    # Create the directory path
-                    dir_path = os.path.join(BASE_DIR, image_name, noise_level, noise_type, filter_type)
-                    os.makedirs(dir_path, exist_ok=True)
+                for k in kernel_sizes:                    
                     
                     # Apply the filter
                     if filter_type in FILTER_MAPPING:
@@ -50,10 +44,10 @@ def save_filtered_images(df, image_name, kernel_sizes=[3, 5, 7], gaussian_std=0)
 
                     if (filtered_image.shape != noisy_image.shape):
                         raise ValueError(f"Filtered image shape {filtered_image.shape} does not match noisy image shape {noisy_image.shape}")
+
+                    file_path = util.get_path_filtered(image_name, noise_level, noise_type, filter_type, k)
                     
                     # Save the filtered image
-                    file_name = f"{image_name}_{noise_type}_{noise_level}_{filter_type}_k{k}.png"
-                    file_path = os.path.join(dir_path, file_name)
                     cv2.imwrite(file_path, filtered_image)
 
 

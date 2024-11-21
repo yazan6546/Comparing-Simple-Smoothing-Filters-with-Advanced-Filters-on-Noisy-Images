@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
 import math
+import utilities as utils
+import cv2
 
 
 def plot_metric_vs_kernel(metric_dict_outer, ylabel, noise_levels, filter_types, kernel_sizes, number):
@@ -65,6 +67,14 @@ def plot_images(list_of_images, titles):
 
 
 def plot_time_vs_kernel(times):
+    """
+    Plot the time taken to apply different filters against the kernel sizes.
+
+    Parameters:
+    - times: DataFrame containing the time taken to apply different filters.
+
+    """
+
     # Unstack the DataFrame to have 'Kernel Size' as the index and 'Filter Type' as columns
     df_unstacked = times['Time'].unstack(level=0)
     
@@ -111,6 +121,7 @@ def visualize_edges(original_image, edges_image):
 def plot_original_noisy_images(df, noise_types, intesities, type):
     """
     Plot the original image and the noisy variants side by side.
+
     Parameters:
     - dataframes: List of DataFrames containing the noisy images.
     - noise_types: List of noise types.
@@ -141,3 +152,63 @@ def plot_original_noisy_images(df, noise_types, intesities, type):
     plt.tight_layout(rect=[0, 0, 1, 0.94])  # Adjust layout to make room for the suptitle
     plt.subplots_adjust(hspace=0.1)  # Increase the height space between rows
     plt.show()
+
+
+def plot_original_noisy_filtered_images(df, noise_type, noise_intensity, filter_types, original_image_name, kernel_size):
+
+    """
+    Plot the original image, noisy image, and filtered images side by side.
+
+    Parameters:
+    - df: DataFrame containing the images.
+    - noise_type: Type of noise.
+    - noise_intensity: Intensity of noise.
+    - filter_types: List of filter types.
+    - original_image_name: Name of the original image.
+    - kernel_size: 
+    """
+    
+    image = df.loc['no_noise', 'Image']
+    noisy_image = df.loc[f'{noise_type} Noise ({noise_intensity})', 'Image']
+    
+    fig, axes = plt.subplots(3, 3, figsize=(30, 20))
+    # Display original image
+    axes[0, 0].imshow(image, cmap='gray')
+    axes[0, 0].set_title('Original Image', fontsize=15)
+    axes[0, 0].axis('off')
+
+    # Display noisy image (Gaussian medium)
+    axes[0, 1].imshow(noisy_image, cmap='gray')
+    axes[0, 1].set_title('Noisy Image (Gaussian Medium)')
+    axes[0, 1].axis('off')
+
+    # Hide the third subplot in the first row
+    axes[0, 2].axis('off')
+
+    # Display filtered images in the second row
+    for j, filter_type in enumerate(filter_types[:3]):
+
+        image_path = utils.get_path_filtered(original_image_name, noise_intensity, noise_type, filter_type, 5, create_dir=False)
+
+        filtered_image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+        axes[1, j].imshow(filtered_image, cmap='gray')
+        axes[1, j].set_title(f'{filter_type.replace("_", " ").title()}', fontsize=15)
+        axes[1, j].axis('off')
+
+    # Display filtered images in the third row
+    for j, filter_type in enumerate(filter_types[3:]):
+
+        image_path = utils.get_path_filtered(original_image_name, noise_intensity, noise_type, filter_type, 5, create_dir=False)
+
+        filtered_image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+        axes[2, j].imshow(filtered_image, cmap='gray')
+        axes[2, j].set_title(f'{filter_type.replace("_", " ").title()}', fontsize=15)
+        axes[2, j].axis('off')
+
+    fig.suptitle(f'Filtering the image corrupted with {noise_type} ({noise_intensity})' , fontsize=20)
+    plt.tight_layout(rect=[0, 0, 1, 0.88])  # Adjust layout to make room for the suptitle
+    plt.subplots_adjust(hspace=0.4)  # Increase the height space between rows
+    plt.tight_layout()
+    plt.show()    
+
+    

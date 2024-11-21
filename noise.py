@@ -1,11 +1,34 @@
 import numpy as np
 
 def add_gaussian_noise(image, mean=0, sigma=25):
+    """
+    Add Gaussian noise to the input image.
+
+    Parameters:
+    - image: Input grayscale image (2D numpy array).
+    - mean: Mean of the Gaussian distribution.
+    - sigma: Standard deviation of the Gaussian distribution.
+
+    Returns:
+    - noisy_image: Noisy image.
+    """
+
     gauss = np.random.normal(mean, sigma, image.shape)
     noisy_image = np.clip(image + gauss, 0, 255).astype(np.uint8)
     return noisy_image
 
 def add_salt_and_pepper_noise(image, prob=0.05):
+    """
+    Add Salt-and-Pepper noise to the input image.
+
+    Parameters:
+    - image: Input grayscale image (2D numpy array).
+    - prob: Probability of the noise.
+
+    Returns:
+    - noisy_image: Noisy image.
+    """
+    
     noisy_image = np.copy(image)
     total_pixels = image.size
     num_salt = int(total_pixels * prob * 0.5)

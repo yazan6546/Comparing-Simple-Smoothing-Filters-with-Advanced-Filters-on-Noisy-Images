@@ -7,6 +7,16 @@ import pandas as pd
 import filters
 
 def calculate_psnr(original_image, filtered_image):
+    """
+    Calculate the Peak Signal-to-Noise Ratio (PSNR) between the original and filtered images.
+
+    Parameters:
+    - original_image: Original grayscale image (2D numpy array).
+    - filtered_image: Filtered grayscale image (2D numpy array).
+
+    Returns:
+    - psnr: PSNR value.
+    """
 
     mse = np.mean((original_image.astype(float) - filtered_image.astype(float)) ** 2)
     epsilon = 1e-10  # Small threshold to prevent numerical instability
@@ -14,6 +24,23 @@ def calculate_psnr(original_image, filtered_image):
 
 
 def get_metric_values_for_filter_and_noise(metric, base_dir, original_image_name, original_image, noise_level, noise_type, filter_types):
+    """
+    Get the metric values for different filters and noise types.
+
+    Parameters:
+    - metric: Metric function to calculate.
+    - base_dir: Base directory containing the filtered images.
+    - original_image_name: Name of the original image.
+    - original_image: Original grayscale image (2D numpy array).
+    - noise_level: Noise level (e.g., 'low', 'medium', 'high').
+    - noise_type: Type of noise (e.g., 'Gaussian', 'Salt and Pepper').
+    - filter_types: List of filter types.
+
+    Returns:
+    - metric_values: Dictionary containing the metric values for different filter types.
+    - kernels: List of kernel sizes used for filtering.
+    """
+    
     metric_values = {filter_type: [] for filter_type in filter_types}
     kernels = []
 
@@ -53,6 +80,19 @@ def get_metric_values_for_filter_and_noise(metric, base_dir, original_image_name
 
 
 def collect_metric_values_for_all_filters_and_noise_types(metric, base_dir, original_image_name, original_image):
+    """
+    Collect the metric values for different filters and noise types.
+
+    Parameters:
+    - metric: Metric function to calculate.
+    - base_dir: Base directory containing the filtered images.
+    - original_image_name: Name of the original image.
+    - original_image: Original grayscale image (2D numpy array).
+
+    Returns:
+    - metric_dict_outer: Dictionary containing the metric values for different noise types and noise levels.
+    - kernels: List of kernel sizes used for filtering.
+    """
 
     noise_levels = os.listdir(os.path.join(base_dir, original_image_name))
     noise_types = os.listdir(os.path.join(base_dir, original_image_name, noise_levels[0]))
@@ -71,6 +111,19 @@ def collect_metric_values_for_all_filters_and_noise_types(metric, base_dir, orig
 
 
 def measure_filter_time(image, filter_type, kernel_size, gaussian_std=0):
+    """
+    Measure the time taken to apply a filter on the input image.
+
+    Parameters:
+    - image: Input grayscale image (2D numpy array).
+    - filter_type: Type of filter to apply.
+    - kernel_size: Size of the kernel.
+    - gaussian_std: Standard deviation for Gaussian filter.
+
+    Returns:
+    - elapsed_time: Time taken to apply the filter.
+    """
+
     start_time = time.perf_counter()
 
     if filter_type in filters.FILTER_MAPPING:
@@ -89,6 +142,19 @@ def measure_filter_time(image, filter_type, kernel_size, gaussian_std=0):
 
 
 def collect_filter_times(image, filter_types, kernel_sizes, gaussian_std=0):
+    """"
+    Collect the time taken to apply different filters on the input image.
+
+    Parameters:
+    - image: Input grayscale image (2D numpy array).
+    - filter_types: List of filter types.
+    - kernel_sizes: List of kernel sizes.
+    - gaussian_std: Standard deviation for Gaussian filter.
+
+    Returns:
+    - df: DataFrame containing the time taken to apply different filters.
+    """
+
     data = []
 
     for filter_type in filter_types:
