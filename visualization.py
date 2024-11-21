@@ -137,7 +137,7 @@ def plot_original_noisy_images(df, noise_types, intesities, type):
             axes[i, j + 1].set_title(noisy_image_key, fontsize=23)
             axes[i, j + 1].axis('off')
         
-    fig.suptitle(f'Different noises on {type} detailed image' , fontsize=35)
+    fig.suptitle(f'Different noises on {type} image' , fontsize=35)
     plt.tight_layout(rect=[0, 0, 1, 0.94])  # Adjust layout to make room for the suptitle
     plt.subplots_adjust(hspace=0.1)  # Increase the height space between rows
     plt.show()
