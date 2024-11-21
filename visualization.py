@@ -188,7 +188,7 @@ def plot_original_noisy_filtered_images(df, noise_type, noise_intensity, filter_
     # Display filtered images in the second row
     for j, filter_type in enumerate(filter_types[:3]):
 
-        image_path = utils.get_path_filtered(original_image_name, noise_intensity, noise_type, filter_type, 5, create_dir=False)
+        image_path = utils.get_path_filtered(original_image_name, noise_intensity, noise_type, filter_type, kernel_size, create_dir=False)
 
         filtered_image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
         axes[1, j].imshow(filtered_image, cmap='gray')
@@ -198,7 +198,7 @@ def plot_original_noisy_filtered_images(df, noise_type, noise_intensity, filter_
     # Display filtered images in the third row
     for j, filter_type in enumerate(filter_types[3:]):
 
-        image_path = utils.get_path_filtered(original_image_name, noise_intensity, noise_type, filter_type, 5, create_dir=False)
+        image_path = utils.get_path_filtered(original_image_name, noise_intensity, noise_type, filter_type, kernel_size, create_dir=False)
 
         filtered_image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
         axes[2, j].imshow(filtered_image, cmap='gray')
