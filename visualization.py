@@ -290,14 +290,12 @@ def plot_detailed_comparison(df, noise_type, noise_intensity, filter_types, kern
                 ax.axis('off')
     
     # Set the suptitle with a larger font size
-    fig.suptitle(f'Original, Edge Detection, Noisy, and Filtered Images for {original_image_name}', fontsize=26)
+    fig.suptitle(f'Edge Detection for Images corrupted with {noise_type} {noise_intensity}', fontsize=26)
     
     # Adjust layout and increase spacing between rows
     plt.tight_layout(rect=[0, 0, 1, 0.95])
-    plt.subplots_adjust(hspace=0.15)  # Increase the vertical space between rows
+    plt.subplots_adjust(hspace=0.12)  # Increase the vertical space between rows
     
     # Show the figure
     plt.show()
     
-    # Close the figure to ensure separation
-    plt.close(fig)
