@@ -228,9 +228,9 @@ def plot_detailed_comparison(df, noise_type, noise_intensity, filter_types, kern
     - kernel_sizes: List of kernel sizes.
     - original_image_name: Name of the original image.
     """
-    fontsize_subtitle=26
 
-    # Get the original image, noisy image, and edge detection images
+    fontsize_subtitle = 20
+    
     image = df.loc['no_noise', 'Image']
     noisy_image = df.loc[f'{noise_type} Noise ({noise_intensity})', 'Image']
     edges_image = cv2.Canny(image, 100, 200)
@@ -238,7 +238,7 @@ def plot_detailed_comparison(df, noise_type, noise_intensity, filter_types, kern
     
     # Create a new figure with a custom grid layout
     fig = plt.figure(figsize=(20, 20))
-    gs = gridspec.GridSpec(4, 4, height_ratios=[1, 1, 1, 1], width_ratios=[1, 1, 1, 1])
+    gs = gridspec.GridSpec(4, 4, height_ratios=[1, 1, 1,  1], width_ratios=[1, 1, 1, 1])
     
     # Set the face color of the figure to white
     fig.patch.set_facecolor('white')
@@ -267,20 +267,21 @@ def plot_detailed_comparison(df, noise_type, noise_intensity, filter_types, kern
     ax4.set_title('Noisy Edge Detection', fontsize=fontsize_subtitle)
     ax4.axis('off')
     
-    # Display filtered images in the second, third, and fourth rows
+    # Display filtered images in the second and third rows
     for i, filter_type in enumerate(filter_types):
         for j, kernel_size in enumerate(kernel_sizes):
-            row = (i % 3) + 1
-            col = j
+            row = (i // 2) + 1
+            col = (i % 2) * 2 + j
             ax = fig.add_subplot(gs[row, col])
             image_path = utils.get_path_filtered(original_image_name, noise_intensity, noise_type, filter_type, kernel_size, create_dir=False)
             filtered_image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
-            ax.imshow(filtered_image, cmap='gray')
+            filtered_edges_image = cv2.Canny(filtered_image, 100, 200)
+            ax.imshow(filtered_edges_image, cmap='gray')
             ax.set_title(f'{filter_type.replace("_", " ").title()} (k={kernel_size})', fontsize=fontsize_subtitle)
             ax.axis('off')
     
     # Hide any unused subplots
-    for row in range(4):
+    for row in range(3):
         for col in range(4):
             if row == 0 and col < 4:
                 continue
@@ -289,11 +290,14 @@ def plot_detailed_comparison(df, noise_type, noise_intensity, filter_types, kern
                 ax.axis('off')
     
     # Set the suptitle with a larger font size
-    fig.suptitle(f'Original, Edge Detection, Noisy, and Filtered Images for {original_image_name}', fontsize=35)
+    fig.suptitle(f'Original, Edge Detection, Noisy, and Filtered Images for {original_image_name}', fontsize=26)
     
     # Adjust layout and increase spacing between rows
-    plt.tight_layout(rect=[0, 0, 1, 0.94])
-    plt.subplots_adjust(hspace=0.1)  # Increase the vertical space between rows
+    plt.tight_layout(rect=[0, 0, 1, 0.95])
+    plt.subplots_adjust(hspace=0.15)  # Increase the vertical space between rows
     
     # Show the figure
     plt.show()
+    
+    # Close the figure to ensure separation
+    plt.close(fig)
