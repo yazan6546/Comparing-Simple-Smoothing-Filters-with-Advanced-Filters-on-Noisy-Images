@@ -1,0 +1,11 @@
+numpy
+opencv-python
+matplotlib
+scipy
+jupyter
+pandas
+scikit-learn
+shutil
+math
+time
+os
