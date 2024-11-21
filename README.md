@@ -53,7 +53,7 @@ Reduces noise by adjusting the filtering process based on local variance.
 2.  Run this command:
    
     ```bash
-    pip install requirements.txt
+    pip install -r requirements.txt
     ```
 3.  Open the `maain.ipynb` notebook in Google Colab or a Jupyter environment.
   
