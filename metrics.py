@@ -71,7 +71,7 @@ def collect_metric_values_for_all_filters_and_noise_types(metric, base_dir, orig
 
 
 def measure_filter_time(image, filter_type, kernel_size, gaussian_std=0):
-    start_time = time.time()
+    start_time = time.perf_counter()
 
     if filter_type in filters.FILTER_MAPPING:
         if filter_type == 'gaussian_filter':  # Special case for Gaussian filter
@@ -81,7 +81,7 @@ def measure_filter_time(image, filter_type, kernel_size, gaussian_std=0):
     else:
         raise ValueError("Unsupported filter type")
 
-    end_time = time.time()
+    end_time = time.perf_counter()
     elapsed_time = end_time - start_time
 
     return elapsed_time
