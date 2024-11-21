@@ -14,6 +14,7 @@ This repository contains code for comparing the performance of various image smo
 - [Running the Code](#running-the-code)
 - [Jupyter Notebook](#jupyter-notebook)
   - [Converting Notebook to PDF](#converting-notebook-to-pdf)
+  - [Viewing the notebook as HTML](viewing-the-notebook-as-html)
 - [Repository Contents](#repository-contents)
 - [Directory Structure](#directory-structure)
 - [Contributing](#contributing)
@@ -65,13 +66,17 @@ Reduces noise by adjusting the filtering process based on local variance.
 
 The repository includes a Jupyter Notebook (`main.ipynb`) that serves as the main project file. It demonstrates the usage of the filtering and visualization functions, providing a step-by-step guide to applying filters, measuring their performance, and visualizing the results. The notebook also includes examples of edge detection and the effect of different kernel sizes on filtering performance.
 
-## Converting Notebook to PDF
+### Converting Notebook to PDF
 To convert the Jupyter Notebook to a PDF file with a table of contents, use the following command:
 
    ```bash
    jupyter nbconvert --to pdf --template toc_template.tplx [main.ipynb](http://_vscodecontentref_/0)
    ```
 The pdf is already included in `reports` directory for convenience.
+
+### Viewing the notebook as HTML
+
+You can view the Jupyter Notebook as an HTML file [here](https://raw.githack.com/yazan6546/Comparing-Simple-Smoothing-Filters-with-Advanced-Filters-on-Noisy-Images/main/report/Comparing-Simple-Smoothing-Filters-with-Advanced-Filters-on-Noisy-Images.html).
 
 ## Repository Contents
 
